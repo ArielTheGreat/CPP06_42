@@ -30,11 +30,6 @@ const char *Parser::InvalidInputException::what() const throw()
     return ("InvalidInputException: the string is invalid for conversion");
 }
 
-void Parser::display_conversion()
-{
-
-}
-
 void Parser::parse_input(std::string &str)
 {
     try
@@ -60,26 +55,7 @@ void Parser::setInput(std::string str)
         _input = str.substr(start, end - start + 1);
 }
 
-void Parser::setType(std::string str)
-{
-    if (_isChar(str))
-    {
-        _type = CHAR;
-    }else if(_isInt(str))
-    {
-        _type = INT;
-    } else if (_isFloat(str)) {
-		_type = FLOAT;
-	} else if (_isDouble(str)) {
-		_type = DOUBLE;
-	} else if (_isPseudoLiteral(str)) {
-		_type = PSEUDOLITERAL;
-	} else {
-		throw InvalidInputException();
-	}
-}
-
-bool		_isChar(std::string str)
+bool		Parser::_isChar(std::string str)
 {
     if (str.length() == 1 && !isdigit(str[0])) {
 		return (true);
@@ -87,7 +63,7 @@ bool		_isChar(std::string str)
 	return (false);
 }
 
-bool		_isInt(std::string str)
+bool		Parser::_isInt(std::string str)
 {
     for (size_t	i = 0; i < str.length(); i++) {
 		if (i == 0 && (str[i] == '-' || str[i] == '+')) {
@@ -102,7 +78,7 @@ bool		_isInt(std::string str)
 	return (num >= min && num <= max);
 }
 
-bool		_isFloat(std::string str)
+bool		Parser::_isFloat(std::string str)
 {
     size_t	count_dot = 0;
 	for (size_t i = 0; i < str.length(); i++) {
@@ -119,7 +95,7 @@ bool		_isFloat(std::string str)
 	double min = -std::numeric_limits<float>::max();
 	return (num >= min && num <= max);
 }
-bool		_isDouble(std::string str)
+bool		Parser::_isDouble(std::string str)
 {
     size_t	count_dot = 0;
 	for (size_t i = 0; i < str.length(); i++) {
@@ -137,7 +113,7 @@ bool		_isDouble(std::string str)
 	return (num >= min && num <= max);
 }
 
-bool		_isPseudoLiteral(std::string str)
+bool		Parser::_isPseudoLiteral(std::string str)
 {
     if (str == "-inff" || str == "+inff" || str == "nanf" || str == "-inf" || str == "+inf" || str == "nan") {
 		return (true);
@@ -162,21 +138,165 @@ void Parser::display_conversion(void)
     }
 }
 
-void		_toChar(void)
+void		Parser::_toChar(void)
 {
-
+	std::cout << "char: ";
+	switch (_type) {
+		case (CHAR):
+			if ( _input[0] < std::numeric_limits<char>::min() || _input[0] > std::numeric_limits<char>::max()) {
+				std::cout << "impossible";
+			} else if (_input[0] < 32 && _input[0] >= std::numeric_limits<char>::min()) {
+				std::cout << "Non displayable";
+			} else {
+				std::cout << _input[0];
+			}
+			break ;
+		case (INT):
+			if (atoi(_input.c_str()) < std::numeric_limits<char>::min() || atoi(_input.c_str()) > std::numeric_limits<char>::max()) {
+				std::cout << "impossible";
+			} else if (atoi(_input.c_str()) < 32 && atoi(_input.c_str()) >= std::numeric_limits<char>::min()) {
+				std::cout << "Non displayable";
+			} else {
+				std::cout << static_cast<char>(atoi(_input.c_str()));
+			}
+			break ;
+		case (FLOAT):
+			if (atof(_input.c_str()) < std::numeric_limits<char>::min() || atof(_input.c_str()) > std::numeric_limits<char>::max()) {
+				std::cout << "impossible";
+			} else if (atof(_input.c_str()) < 32 && atof(_input.c_str()) >= std::numeric_limits<char>::min()) {
+				std::cout << "Non displayable";
+			} else {
+				std::cout << static_cast<char>(atof(_input.c_str()));
+			}
+			break ;
+		case (DOUBLE):
+			if (strtod(_input.c_str(), NULL) < std::numeric_limits<char>::min() || strtod(_input.c_str(), NULL) > std::numeric_limits<char>::max()) {
+				std::cout << "impossible";
+			} else if (strtod(_input.c_str(), NULL) < 32 && strtod(_input.c_str(), NULL) >= std::numeric_limits<char>::min()) {
+				std::cout << "Non displayable";
+			} else {
+				std::cout << static_cast<char>(strtod(_input.c_str(), NULL));
+			}
+			break ;
+		case (PSEUDOLITERAL):
+			std::cout << "impossible";
+			break ;
+		default:
+			throw InvalidInputException();
+	}
+	std::cout << std::endl;
 }
-void		_toInt(void)
-{
 
+void		Parser::_toInt(void)
+{
+	std::cout << "int: ";
+	switch (_type) {
+		case (CHAR):
+			std::cout << static_cast<int>(_input[0]);
+			break ;
+		case (INT):
+			std::cout << atoi(_input.c_str());
+			break ;
+		case (FLOAT):
+			if (atof(_input.c_str()) < std::numeric_limits<int>::min() || atof(_input.c_str()) > std::numeric_limits<int>::max()) {
+				std::cout << "impossible";
+			} else {
+				std::cout << static_cast<int>(atof(_input.c_str()));
+			}
+			break ;
+		case (DOUBLE):
+			if (strtod(_input.c_str(), NULL) < std::numeric_limits<int>::min() || strtod(_input.c_str(), NULL) > std::numeric_limits<int>::max()) {
+				std::cout << "impossible";
+			} else {
+				std::cout << static_cast<int>(strtod(_input.c_str(), NULL));
+			}
+			break ;
+		case (PSEUDOLITERAL):
+			std::cout << "impossible";
+			break ;
+		default:
+			throw InvalidInputException();
+	}
+	std::cout << std::endl;
 }
 
-void		_toFloat(void)
+void		Parser::_toFloat(void)
 {
-
+	std::cout << "float: ";
+	switch (_type)
+	{
+		case (CHAR):
+			std::cout << std::fixed << std::setprecision(1) << static_cast<float>(_input[0]) << "f";
+			break ;
+		case (INT):
+			std::cout << std::fixed << std::setprecision(1) << static_cast<float>(atoi(_input.c_str())) << "f";
+			break ;
+		case (FLOAT):
+			std::cout << std::fixed << std::setprecision(1) << atof(_input.c_str()) << 'f';
+			break ;
+		case (DOUBLE):
+			if (strtod(_input.c_str(), NULL) < -std::numeric_limits<float>::max() || strtod(_input.c_str(), NULL) > std::numeric_limits<float>::max())
+				std::cout << "impossible";
+			else
+				std::cout << std::fixed << std::setprecision(1) << static_cast<float>(strtod(_input.c_str(), NULL)) << 'f';
+			break ;
+		case (PSEUDOLITERAL):
+			if (_input == "-inff" || _input == "+inff" || _input == "nanf") {
+				std::cout << _input;
+			} else {
+				std::cout << _input << 'f';
+			}
+			break ;
+		default:
+			throw InvalidInputException();
+	}
+	std::cout << std::endl;
 }
 
-void		_toDouble(void)
+void		Parser::_toDouble(void)
 {
-    
+    std::cout << "double: ";
+	switch (_type) {
+		case (CHAR):
+			std::cout << std::fixed << std::setprecision(1) << static_cast<double>(_input[0]);
+			break ;
+		case (INT):
+			std::cout << std::fixed << std::setprecision(1) << static_cast<double>(atoi(_input.c_str()));
+			break ;
+		case (FLOAT):
+			std::cout << std::fixed << std::setprecision(1) << static_cast<double>(atof(_input.c_str()));
+			break ;
+		case (DOUBLE):
+			std::cout << std::fixed << std::setprecision(1) << strtod(_input.c_str(), NULL);
+			break ;
+		case (PSEUDOLITERAL):
+			if (_input == "-inff" || _input == "+inff" || _input == "nanf") {
+				std::cout << _input.substr(0, _input.length() - 1);
+			} else {
+				std::cout << _input;
+			}
+			break ;
+		default:
+			throw InvalidInputException();
+	}
+	std::cout << std::endl;
+}
+
+void Parser::setType(std::string str)
+{
+    if (_isChar(str))
+    {
+        _type = CHAR;
+    }else if(_isInt(str))
+    {
+        _type = INT;
+    } else if (_isFloat(str)) {
+		_type = FLOAT;
+	} else if (_isDouble(str)) {
+		_type = DOUBLE;
+	} else if (_isPseudoLiteral(str)) {
+		_type = PSEUDOLITERAL;
+	} else {
+		throw InvalidInputException();
+	}
 }
